@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>DeathZore 知多少</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  
+  body {
+    background: #000000;
+    color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+    -webkit-text-size-adjust: 100%;
+  }
+  
+  :root {
+    --cyan: #00ffff;
+    --purple: #ff00ff;
+    --green: #00ff00;
+    --red: #ff0000;
+  }
+  
+  .page {
+    display: none;
+    width: 100%;
+    min-height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    position: relative;
+  }
+  .page.active { display: flex; }
+  
+  .neon-title {
+    background: linear-gradient(90deg, #00ffff, #ff00ff, #00ffff);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    animation: neonShift 3s linear infinite;
+    font-weight: bold;
+  }
+  @keyframes neonShift {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+  }
+  
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 2px solid;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.1s;
+    border-radius: 4px;
+    font-family: inherit;
+    color: inherit;
+    min-height: 44px;
+    line-height: 1.2;
+    text-transform: none;
+  }
+  .btn:active { transform: scale(0.96); }
+  
+  .btn-cyan {
+    border-color: var(--cyan);
+    color: var(--cyan);
+    box-shadow: 0 0 5px var(--cyan), 0 0 10px var(--cyan), 0 0 20px var(--cyan);
+    text-shadow: 0 0 5px var(--cyan), 0 0 10px var(--cyan), 0 0 20px var(--cyan);
+  }
+  .btn-cyan:hover { background: rgba(0, 255, 255, 0.2); }
+  
+  .btn-purple {
+    border-color: var(--purple);
+    color: var(--purple);
+    box-shadow: 0 0 5px var(--purple), 0 0 10px var(--purple), 0 0 20px var(--purple);
+    text-shadow: 0 0 5px var(--purple), 0 0 10px var(--purple), 0 0 20px var(--purple);
+  }
+  .btn-purple:hover { background: rgba(255, 0, 255, 0.2); }
+  
+  .btn-green {
+    border-color: var(--green);
+    color: var(--green);
+    box-shadow: 0 0 5px var(--green), 0 0 10px var(--green), 0 0 20px var(--green);
+    text-shadow: 0 0 5px var(--green), 0 0 10px var(--green), 0 0 20px var(--green);
+  }
+  .btn-green:hover { background: rgba(0, 255, 0, 0.2); }
+  
+  .btn-red {
+    border-color: var(--red);
+    color: var(--red);
+    box-shadow: 0 0 5px var(--red), 0 0 10px var(--red), 0 0 20px var(--red);
+    text-shadow: 0 0 5px var(--red), 0 0 10px var(--red), 0 0 20px var(--red);
+  }
+  .btn-red:hover { background: rgba(255, 0, 0, 0.2); }
+  
+  .btn-white {
+    border-color: #ffffff;
+    color: #ffffff;
+    box-shadow: 0 0 5px #ffffff, 0 0 10px #ffffff, 0 0 20px #ffffff;
+    text-shadow: 0 0 5px #ffffff, 0 0 10px #ffffff, 0 0 20px #ffffff;
+  }
+  .btn-white:hover { background: rgba(255, 255, 255, 0.2); }
+  
+  input[type="text"], input[type="file"], input[type="password"], textarea, select {
+    background: #000000;
+    border: 1px solid #333333;
+    color: #ffffff;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border-radius: 4px;
+    font-family: inherit;
+    width: 100%;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  input[type="radio"] {
+    -webkit-appearance: radio;
+    appearance: radio;
+    width: auto;
+    flex-shrink: 0;
+  }
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--cyan);
+    box-shadow: 0 0 5px var(--cyan), 0 0 10px var(--cyan);
+  }
+  textarea { resize: vertical; min-height: 100px; }
+  
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.88);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 1rem;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-content {
+    background: #111111;
+    border: 2px solid var(--cyan);
+    box-shadow: 0 0 10px var(--cyan), 0 0 20px var(--cyan);
+    padding: 1.5rem;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+  }
+  
+  .btn-back {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    width: 3rem;
+    height: 3rem;
+    background: #ffffff;
+    color: #000000;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    z-index: 100;
+    border-radius: 4px;
+    font-weight: bold;
+    padding: 0;
+  }
+  
+  .quiz-card {
+    border: 2px solid #333333;
+    padding: 1.5rem;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 600px;
+    transition: border-color 0.3s, color 0.3s;
+  }
+  
+  .list-item {
+    border: 1px solid #333333;
+    padding: 1rem;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .list-item:hover {
+    border-color: var(--purple);
+  }
+  
+  .option-btn {
+    width: 100%;
+    text-align: left;
+    justify-content: flex-start;
+    padding: 0.75rem;
+    font-size: 1rem;
+    word-break: break-all;
+  }
+  
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #000; }
+  ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #555; }
+</style>
+</head>
+<body>
+<!-- ==================== PAGE 1: COVER ==================== -->
+<div id="page-cover" class="page active">
+  <div class="neon-title" style="position:fixed;top:1rem;left:1rem;font-size:1.5rem;z-index:10;">DeathZore</div>
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;width:100%;">
+    <h1 class="neon-title" style="font-size:clamp(3rem,12vw,6rem);margin-bottom:2.5rem;">知多少</h1>
+    <button class="btn btn-cyan" style="font-size:1.2rem;padding:1rem 2.5rem;" onclick="goHome()">点击进入</button>
+  </div>
+</div>
+<!-- ==================== PAGE 2: HOME ==================== -->
+<div id="page-home" class="page">
+  <button class="btn-back" onclick="goCover()">←</button>
+  <div style="width:100%;max-width:800px;display:flex;flex-direction:column;align-items:center;padding-top:5rem;">
+    <h2 style="color:var(--cyan);text-shadow:0 0 5px var(--cyan),0 0 10px var(--cyan),0 0 20px var(--cyan);font-size:2rem;margin-bottom:1.5rem;text-align:center;">我的题库</h2>
+    
+    <div style="display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;justify-content:center;">
+      <button class="btn btn-white" style="font-size:0.9rem;padding:0.6rem 1.2rem;" onclick="exportAll()">导出所有题库</button>
+      <button class="btn btn-white" style="font-size:0.9rem;padding:0.6rem 1.2rem;" onclick="importQuiz()">导入题库</button>
+    </div>
+    
+    <button class="btn btn-cyan" style="margin-bottom:2rem;font-size:1.1rem;" onclick="openAddQuizModal()">添加题库</button>
+    <div id="quiz-list" style="width:100%;display:flex;flex-direction:column;gap:1rem;"></div>
+  </div>
+</div>
+<!-- ==================== PAGE 3: EDIT ==================== -->
+<div id="page-edit" class="page">
+  <button class="btn-back" onclick="goHomeFromEdit()">←</button>
+  <div style="width:100%;max-width:800px;display:flex;flex-direction:column;align-items:center;padding-top:5rem;">
+    <div style="width:100%;display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;gap:1rem;">
+      <h2 id="edit-title" style="color:var(--cyan);text-shadow:0 0 5px var(--cyan),0 0 10px var(--cyan),0 0 20px var(--cyan);font-size:1.5rem;flex:1;text-align:center;word-break:break-all;"></h2>
+      <button class="btn btn-green" style="flex-shrink:0;font-size:0.9rem;padding:0.6rem 1.2rem;" onclick="finishEdit()">完成编辑</button>
+    </div>
+    
+    <!-- 密码设置区域 -->
+    <div style="width:100%;border:1px solid #333;border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
+      <div style="color:#888;font-size:0.9rem;margin-bottom:0.75rem;">🔒 题库保护设置</div>
+      <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.5rem;">
+        <input type="checkbox" id="has-password" onchange="togglePassword()" style="width:auto;">
+        <label for="has-password" style="color:#fff;font-size:0.95rem;">启用密码保护</label>
+      </div>
+      <div id="password-area" style="display:none;flex-direction:column;gap:0.5rem;">
+        <input type="password" id="edit-password" placeholder="设置密码（留空则取消密码）" oninput="updatePasswordDraft()">
+        <div style="color:#666;font-size:0.8rem;">设置密码后，他人需输入正确密码才能编辑此题库</div>
+      </div>
+    </div>
+    
+    <!-- 彩蛋致辞编辑区 -->
+    <div style="width:100%;margin-bottom:1.5rem;">
+      <div style="color:#888;font-size:0.9rem;margin-bottom:0.5rem;">🎉 结算彩蛋致辞（答题完成后显示）</div>
+      <input type="text" id="edit-remark" placeholder="输入彩蛋致辞，例如：恭喜你全对！..." oninput="updateRemarkDraft()">
+    </div>
+    
+    <button class="btn btn-cyan" style="margin-bottom:2rem;" onclick="openQuestionModal()">添加题目</button>
+    <div id="question-list" style="width:100%;display:flex;flex-direction:column;gap:1rem;"></div>
+    
+    <!-- 危险操作区：删除题库 -->
+    <div style="width:100%;margin-top:3rem;border-top:1px solid #333;padding-top:1.5rem;display:flex;justify-content:center;">
+      <button class="btn btn-red" style="font-size:0.9rem;padding:0.6rem 1.5rem;" onclick="deleteQuizFromEdit()">删除此题库</button>
+    </div>
+  </div>
+</div>
+<!-- ==================== PAGE 4: QUIZ ==================== -->
+<div id="page-quiz" class="page">
+  <button class="btn-back" onclick="goHomeFromQuiz()">←</button>
+  <div style="width:100%;max-width:800px;display:flex;flex-direction:column;align-items:center;padding-top:5rem;flex:1;">
+    <div style="display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:1.5rem;gap:1rem;">
+      <h3 id="quiz-name" style="color:var(--cyan);text-shadow:0 0 5px var(--cyan),0 0 10px var(--cyan);font-size:1.3rem;flex:1;word-break:break-all;"></h3>
+      <span id="quiz-progress" style="color:#fff;font-size:1.1rem;flex-shrink:0;"></span>
+    </div>
+    
+    <div id="quiz-area" style="width:100%;display:flex;flex-direction:column;align-items:center;flex:1;justify-content:flex-start;margin-top:1rem;"></div>
+    <div id="quiz-next" style="margin-top:1.5rem;display:none;">
+      <button class="btn btn-cyan" onclick="nextQuestion()">下一题 →</button>
+    </div>
+  </div>
+</div>
+<!-- ==================== PAGE 6: RESULT (NEW) ==================== -->
+<div id="page-result" class="page">
+  <div style="width:100%;max-width:600px;display:flex;flex-direction:column;align-items:center;padding-top:5rem;flex:1;justify-content:center;">
+    <h1 class="neon-title" style="font-size:clamp(2.5rem,8vw,4rem);margin-bottom:2rem;text-align:center;">答题完成</h1>
+    
+    <h2 id="result-score" class="neon-title" style="font-size:clamp(4rem,15vw,6rem);margin-bottom:2rem;text-align:center;"></h2>
+    
+    <div id="result-remark-box" style="width:100%;border:2px solid var(--purple);border-radius:12px;padding:2rem;margin-bottom:3rem;text-align:center;display:none;box-shadow:0 0 10px var(--purple),0 0 20px var(--purple);">
+      <h3 class="neon-title" style="font-size:1.2rem;margin-bottom:1rem;">🎉 彩蛋致辞</h3>
+      <div id="result-remark" style="color:#fff;font-size:1.4rem;word-break:break-all;line-height:1.6;"></div>
+    </div>
+    
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
+      <button class="btn btn-cyan" onclick="restartQuiz()">再来一次</button>
+      <button class="btn btn-purple" onclick="goWrongBookFromResult()">查看错题本</button>
+      <button class="btn btn-white" onclick="goHome()">返回主页</button>
+    </div>
+  </div>
+</div>
+<!-- ==================== PAGE 5: WRONG BOOK ==================== -->
+<div id="page-wrong" class="page">
+  <button class="btn-back" onclick="goHomeFromWrong()">←</button>
+  <div style="width:100%;max-width:800px;display:flex;flex-direction:column;align-items:center;padding-top:5rem;flex:1;">
+    <h3 id="wrong-title" style="color:var(--cyan);text-shadow:0 0 5px var(--cyan),0 0 10px var(--cyan);font-size:1.5rem;margin-bottom:1.5rem;text-align:center;word-break:break-all;"></h3>
+    <div id="wrong-area" style="width:100%;display:flex;flex-direction:column;align-items:center;flex:1;justify-content:flex-start;margin-top:1rem;"></div>
+    <div id="wrong-next" style="margin-top:1.5rem;display:none;">
+      <button class="btn btn-cyan" onclick="nextWrong()">下一题 →</button>
+    </div>
+  </div>
+</div>
+<!-- ==================== MODAL ==================== -->
+<div id="modal-overlay" class="modal-overlay">
+  <div id="modal-content" class="modal-content"></div>
+</div>
+<script>
+(function() {
+  'use strict';
+  
+  const STORAGE_KEY = 'deathsore_quizzes_v4';
+  const DRAFT_KEY = 'deathsore_drafts_v4';
+  
+  let quizzes = [];
+  let drafts = {};
+  let currentQuizId = null;
+  let draftTimer = null;
+  let importHandled = false;
+  let wrongSession = null;
+  let editingQuestionId = null;
+  let tempOptions = ['', ''];
+  let tempRemark = '';
+  let tempPassword = '';
+  let tempHasPassword = false;
+  
+  function escapeHtml(text) {
+    if (text == null) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+  
+  function saveData() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(quizzes));
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(drafts));
+    } catch(e) {}
+  }
+  
+  function loadData() {
+    try {
+      const q = localStorage.getItem(STORAGE_KEY);
+      if (q) quizzes = JSON.parse(q);
+      const d = localStorage.getItem(DRAFT_KEY);
+      if (d) drafts = JSON.parse(d);
+    } catch(e) { quizzes = []; drafts = {}; }
+  }
+  
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+  
+  function openModal(html) {
+    document.getElementById('modal-content').innerHTML = html;
+    document.getElementById('modal-overlay').classList.add('active');
+  }
+  
+  window.closeModal = function() {
+    document.getElementById('modal-overlay').classList.remove('active');
+  };
+  
+  function updateDraft(quizId, questions, remark, password, hasPassword) {
+    drafts[quizId] = { 
+      questions: JSON.parse(JSON.stringify(questions)), 
+      remark: remark || '',
+      password: password || '',
+      hasPassword: !!hasPassword,
+      lastModified: Date.now() 
+    };
+    if (draftTimer) clearTimeout(draftTimer);
+    draftTimer = setTimeout(function() {
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(drafts));
+      } catch(e) {}
+    }, 500);
+  }
+  
+  // ==================== NAVIGATION ====================
+  window.goCover = function() { showPage('page-cover'); };
+  window.goHome = function() { renderHome(); showPage('page-home'); };
+  
+  window.goHomeFromEdit = function() {
+    if (drafts[currentQuizId]) {
+      openModal('<div style="text-align:center;"><p style="margin-bottom:1.5rem;font-size:1.1rem;">放弃未保存的修改？</p><button class="btn btn-red" onclick="confirmDiscardEdit()">确认放弃</button><button class="btn btn-cyan" onclick="closeModal()" style="margin-left:1rem;">取消</button></div>');
+    } else {
+      showPage('page-home');
+      renderHome();
+    }
+  };
+  
+  window.confirmDiscardEdit = function() {
+    if (draftTimer) clearTimeout(draftTimer);
+    delete drafts[currentQuizId];
+    saveData();
+    closeModal();
+    showPage('page-home');
+    renderHome();
+  };
+  
+  window.goHomeFromQuiz = function() {
+    showPage('page-home');
+    renderHome();
+  };
+  
+  window.goHomeFromWrong = function() {
+    showPage('page-home');
+    renderHome();
+  };
+  
+  window.goWrongBookFromResult = function() {
+    var quiz = quizzes.find(function(q) { return q.id === currentQuizId; });
+    if (!quiz) return;
+    document.getElementById('wrong-title').textContent = quiz.name + ' - 错题本复习';
+    renderWrongBook();
+    showPage('page-wrong');
+  };
+  
+  // ==================== HOME ====================
+  function renderHome() {
+    var list = document.getElementById('quiz-list');
+    if (quizzes.length === 0) {
+      list.innerHTML = '<div style="text-align:center;color:#666;padding:3rem 1rem;font-size:1.1rem;">暂无题库，点击上方按钮添加</div>';
+      return;
+    }
+    var html = '';
+    quizzes.forEach(function(quiz) {
+      // 修改：点击条目本体进入编辑页面，按钮只有答题和错题本
+      html += '<div class="list-item" onclick="enterEditCheck(\'' + quiz.id + '\')">' +
+        '<div style="flex:1;">' +
+          '<div style="font-size:1.2rem;color:#fff;margin-bottom:0.25rem;word-break:break-all;">' + escapeHtml(quiz.name) + '</div>' +
+          '<div style="color:#888;font-size:0.9rem;">' + quiz.questions.length + ' 题' + (quiz.password ? ' 🔒' : '') + ' | 错题: ' + quiz.wrongIds.length + '</div>' +
+        '</div>' +
+        '<div style="display:flex;gap:0.5rem;flex-shrink:0;" onclick="event.stopPropagation();">' +
+          '<button class="btn btn-cyan" style="padding:0.5rem 1rem;font-size:0.85rem;" onclick="startQuiz(\'' + quiz.id + '\')">答题</button>' +
+          '<button class="btn btn-purple" style="padding:0.5rem 1rem;font-size:0.85rem;" onclick="startWrongBook(\'' + quiz.id + '\')">错题本</button>' +
+        '</div>' +
+      '</div>';
+    });
+    list.innerHTML = html;
+  }
+  
+  // ==================== START QUIZ (直接答题) ====================
+  window.startQuiz = function(id) {
+    currentQuizId = id;
+    var quiz = quizzes.find(function(q) { return q.id === id; });
+    if (!quiz) return;
+    
+    if (quiz.questions.length === 0) {
+      openModal('<div style="text-align:center;"><p style="margin-bottom:1rem;font-size:1.1rem;">题库为空，请先编辑添加题目</p><button class="btn btn-cyan" onclick="closeModal()">确定</button></div>');
+      return;
+    }
+    
+    document.getElementById('quiz-name').textContent = quiz.name;
+    initSession(quiz);
+    showPage('page-quiz');
+  };
+  
+  // ==================== START WRONG BOOK (直接进入错题本) ====================
+  window.startWrongBook = function(id) {
+    currentQuizId = id;
+    var quiz = quizzes.find(function(q) { return q.id === id; });
+    if (!quiz) return;
+    
+    document.getElementById('wrong-title').textContent = quiz.name + ' - 错题本复习';
+    renderWrongBook();
+    showPage('page-wrong');
+  };
+  
+  // ==================== PASSWORD CHECK FOR EDIT ====================
+  window.enterEditCheck = function(id) {
+    currentQuizId = id;
+    var quiz = quizzes.find(function(q) { return q.id === id; });
+    if (!quiz) return;
+    
+    if (quiz.password) {
+      openModal('<div style="display:flex;flex-direction:column;gap:1rem;">' +
+        '<h3 style="color:var(--cyan);text-align:center;font-size:1.3rem;">🔒 需要密码</h3>' +
+        '<p style="color:#888;font-size:0.9rem;text-align:center;">此题库已启用密码保护</p>' +
+        '<input type="password" id="check-password" placeholder="输入密码">' +
+        '<div style="display:flex;gap:1rem;justify-content:center;margin-top:0.5rem;">' +
+          '<button class="btn btn-cyan" onclick="verifyPassword()">确认</button>' +
+          '<button class="btn btn-white" style="font-size:0.9rem;padding:0.6rem 1.2rem;" onclick="closeModal()">取消</button>' +
+        '</div>' +
+      '</div>');
+      setTimeout(function() { document.getElementById('check-password').focus(); }, 100);
+    } else {
+      enterEdit(id);
+    }
+  };
+  
+  window.verifyPassword = function() {
+    var quiz = quizzes.find(function(q) { return q.id === currentQuizId; });
+    var input = document.getElementById('check-password').value;
+    if (input === quiz.password) {
+      closeModal();
+      enterEdit(currentQuizId);
+    } else {
+      openModal('<div style="text-align:center;"><p style="color:var(--red);margin-bottom:1.5rem;font-size:1.1rem;">❌ 密码错误，权限不足</p><button class="btn btn-cyan" onclick="closeModal()">确定</button></div>');
+    }
+  };
+  
+  window.enterEdit = function(id) {
+    currentQuizId = id;
+    renderEdit();
+    showPage('page-edit');
+  };
+  
+  // ==================== ADD QUIZ ====================
+  window.openAddQuizModal = function() {
+    openModal('<div style="display:flex;flex-direction:column;gap:1rem;">' +
+      '<h3 style="color:var(--cyan);text-align:center;font-size:1.3rem;">新建题库</h3>' +
+      '<input type="text" id="new-quiz-name" placeholder="输入题库名称（留空自动命名）">' +
+      '<div style="display:flex;gap:1rem;justify-content:center;margin-top:0.5rem;">' +
+        '<button class="btn btn-cyan" onclick="confirmAddQuiz()">确认</button>' +
+        '<button class="btn btn-white" style="font-size:0.9rem;padding:0.6rem 1.2rem;" onclick="closeModal()">取消</button>' +
+      '</div>' +
+    '</div>');
+    setTimeout(function() { document.getElementById('new-quiz-name').focus(); }, 100);
+  };
+  
+  window.confirmAddQuiz = function() {
+    var input = document.getElementById('new-quiz-name');
+    var name = input.value.trim();
+    if (!name) {
+      var x = quizzes.length + 1;
+      while (quizzes.find(function(q) { return q.name === '自定义题库' + x; })) { x++; }
+      name = '自定义题库' + x;
+    } else {
+      if (quizzes.find(function(q) { return q.name === name; })) {
+        alert('名称已存在');
+        return;
+      }
+    }
+    var newQuiz = {
+      id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
+      name: name,
+      questions: [],
+      wrongIds: [],
+      session: null,
+      closingRemark: '',
+      password: ''
+    };
+    quizzes.push(newQuiz);
+    saveData();
+    closeModal();
+    // 新建完成后直接进入编辑页（而非详情页）
+    enterEdit(newQuiz.id);
+  };
+  
+  // ==================== EDIT PAGE ====================
+  function renderEdit() {
+    var quiz = quizzes.find(function(q) { return q.id === currentQuizId; });
+    if (!quiz) return goHome();
+    document.getElementById('edit-title').textContent = quiz.name;
+    
+    var draft = drafts[currentQuizId];
+    var questions = (draft && draft.questions) ? draft.questions : quiz.questions;
+    var remark = (draft && draft.remark !== undefined) ? draft.remark : (quiz.closingRemark || '');
+    var password = (draft && draft.password !== undefined) ? draft.password : (quiz.password || '');
+    var hasPassword = (draft && draft.hasPassword !== undefined) ? draft.hasPassword : !!quiz.password;
+    
+    tempRemark = remark;
+    tempPassword = password;
+    tempHasPassword = hasPassword;
+    
+    document.getElementById('edit-remark').value = remark;
+    document.getElementById('has-password').checked = hasPassword;
+    document.getElementById('edit-password').value = password;
+    togglePassword();
+    
+    var list = document.getElementById('question-list');
+    if (questions.length === 0) {
+      list.innerHTML = '<div style="text-align:center;color:#666;padding:3rem 1rem;font-size:1.1rem;">暂无题目，点击上方按钮添加</div>';
+      return;
+    }
+    var html = '';
+    questions.forEach(function(q, idx) {
+      html += '<div class="list-item" style="align-items:flex-start;cursor:default;">' +
+        '<div style="flex:1;">' +
+          '<div style="color:#888;margin-bottom:0.25rem;font-size:0.9rem;">' + (idx+1) + '. [' + (q.type==='choice'?'选择':'填空') + ']</div>' +
+          '<div style="color:#fff;word-break:break-all;">' + escapeHtml(q.question) + '</div>' +
+        '</div>' +
+        '<div style="display:flex;gap:0.5rem;flex-shrink:0;">' +
+          '<button class="btn btn-cyan" style="padding:0.5rem 1rem;font-size:0.85rem;" onclick="editQuestion(\'' + q.id + '\')">编辑</button>' +
+          '<button class="btn btn-red" style="padding:0.5rem 1rem;font-size:0.85rem;" onclick="deleteQuestion(\'' + q.id + '\')">删除</button>' +
+        '</div>' +
+      '</div>';
+    });
+    list.innerHTML = html;
+  }
+  
+  window.togglePassword = function() {
+    var checked = document.getElementById('has-password').checked;
+    document.getElementById('password-area').style.display = checked ? 'flex' : 'none';
+    tempHasPassword = checked;
+    if (!checked) {
+      tempPassword = '';
+      document.getElementById('edit-password').value = '';
+    }
+    updatePasswordDraft();
+  };
+  
+  window.updatePasswordDraft = function() {
+    var quiz = quizzes.find(function(q) { return q.id === currentQuizId; });
+    var questions = (drafts[currentQuizId] && drafts[currentQuizId].questions) 
+      ? drafts[currentQuizId].questions 
+      : quiz.questions;
+    var remark = (drafts[currentQuizId] && drafts[currentQuizId].remark !== undefined) 
+      ? drafts[currentQuizId].remark 
+      : (quiz.closingRemark || '');
+    
+    tempHasPassword = document.getElementById('has-password').checked;
+    tempPassword = document.getElementById('edit-password').value;
+    updateDraft(currentQuizId, questions, remark, tempPassword, tempHasPassword);
+  };
+  
+  window.updateRemarkDraft = function() {
+    var quiz = quizzes.find(function(q) { return q.id === currentQuizId; });
+    var questions = (drafts[currentQuizId] && drafts[currentQuizId].questions) 
+      ? drafts[currentQuizId].questions 
+      : quiz.questions;
+    var password = (drafts[currentQuizId] && drafts[currentQuizId].password !== undefined) 
+      ? drafts[currentQuizId].password 
+      : (quiz.password || '');
+    var hasPassword = (drafts[currentQuizId] && drafts[currentQuizId].hasPassword !== undefined) 
+      ? drafts[currentQuizId].hasPassword 
+      : !!quiz.password;
+    
+    tempRemark = document.getElementById('edit-remark').value;
+    updateDraft(currentQuizId, questions, tempRemark, password, hasPassword);
+  };
+  
+  window.finishEdit = function() {
+    var quiz = quizzes.find(function(q) { return q.id === currentQuizId; });
+    if (!quiz) return;
+    if (drafts[currentQuizId]) {
+      if (drafts[currentQuizId].questions) {
+        quiz.questions = JSON.parse(JSON.stringify(drafts[currentQuizId].questions));
+      }
+      if (drafts[currentQuizId].remark !== undefined) {
+        quiz.closingRemark = drafts[currentQuizId].remark;
+      }
+      if (drafts[currentQuizId].hasPassword) {
+        quiz.password = drafts[currentQuizId].password || '';
+      } else {
+        quiz.password = '';
+      }
+      quiz.session = null;
+    }
+    delete drafts[currentQuizId];
+    if (draftTimer) clearTimeout(draftTimer);
+    saveData();
+    showPage('page-home');
+    renderHome();
+  };
+  
+  window.deleteQuizFromEdit = function() {
+    var quiz = quizzes.find(function(q) { return q.id === currentQuizId; });
+    if (!quiz) return;
+    openModal('<div style="text-align:center;"><p style="margin-bottom:1.5rem;font-size:1.1rem;">⚠️ 确定删除题库 <br>「' + escapeHtml(quiz.name) + '」？<<br><span style="color:var(--red);font-size:0.9rem;">此操作不可撤销！</span></p><button class="btn btn-red" onclick="confirmDeleteFromEdit()">确认删除</button><button class="btn btn-cyan" onclick="closeModal()" style="margin-left:1rem;">取消</button></div>');
+  };
+  
+  window.confirmDeleteFromEdit = function() {
+    quizzes = quizzes.filter(function(q) { return q.id !== currentQuizId; });
+    delete drafts[currentQuizId];
+    if (draftTimer) clearTimeout(draftTimer);
+    saveData();
+    closeModal();
+    showPage('page-home');
+    renderHome();
+  };
+  
+  // ==================== QUESTION MODAL ====================
+  window.openQuestionModal = function(qid) {
+    editingQuestionId = qid || null;
+    var quiz = quizzes.find(function(q) { return q.id === currentQuizId; });
+    var questions = (drafts[currentQuizId] && drafts[currentQuizId].questions) 
+      ? JSON.parse(JSON.stringify(drafts[currentQuizId].questions)) 
+      : JSON.parse(JSON.stringify(quiz.questions));
+    var q = null;
+    if (qid) q = questions.find(function(x) { return x.id === qid; });
+    
+    if (q && q.type === 'choice') {
+      tempOptions = q.options.map(function(o) { return o; });
+    } else {
+      tempOptions = ['', ''];
+    }
+    
+    var isEdit = !!q;
+    var type = q ? q.type : 'choice';
+    var questionVal = q ? escapeHtml(q.question) : '';
+    var fillAnswer = (q && q.type === 'fill') ? escapeHtml(q.answer) : '';
+    var correctIdx = (q && q.type === 'choice') ? q.correctOption : 0;
+    
+    var html = '<div style="display:flex;flex-direction:column;gap:1rem;">' +
+      '<h3 style="color:var(--cyan);text-align:center;font-size:1.3rem;">' + (isEdit ? '编辑题目' : '添加题目') + '</h3>' +
+      '<select id="q-type" onchange="changeQType()" style="padding:0.75rem;">' +
+        '<option value="choice"' + (type==='choice'?' selected':'') + '>选择题</option>' +
+        '<option value="fill"' + (type==='fill'?' selected':'') + '>填空题</option>' +
+      '</select>' +
+      '<input type="text" id="q-text" placeholder="问题内容" value="' + questionVal + '">' +
+      '<div id="choice-area" style="display:' + (type==='choice'?'flex':'none') + ';flex-direction:column;gap:0.75rem;">' +
+        '<div style="color:#888;font-size:0.9rem;">选项设置（单选正确答案）：</div>' +
+        '<div id="options-list" style="display:flex;flex-direction:column;gap:0.5rem;"></div>' +
+        '<button class="btn btn-cyan" style="padding:0.5rem;font-size:0.9rem;" id="btn-add-opt" onclick="addOption()">添加选项</button>' +
+      '</div>' +
+      '<div id="fill-area" style="display:' + (type==='fill'?'flex':'none') + ';flex-direction:column;gap:0.75rem;">' +
+        '<input type="text" id="q-answer" placeholder="正确答案" value="' + fillAnswer + '">' +
+      '</div>' +
+      '<div style="display:flex;gap:1rem;justify-content:center;margin-top:0.5rem;">' +
+        '<button class="btn btn-green" onclick="saveQuestion()">保存</button>' +
+        '<button class="btn btn-white" style="font-size:0.9rem;padding:0.6rem 1.2rem;" onclick="closeModal()">取消</button>' +
+      '</div>' +
+    '</div>';
+    
+    openModal(html);
+    renderOptions(correctIdx);
+    setTimeout(function() { document.getElementById('q-text').focus(); }, 100);
+  };
+  
+  window.changeQType = function() {
+    var type = document.getElementById('q-type').value;
+    document.getElementById('choice-area').style.display = type === 'choice' ? 'flex' : 'none';
+    document.getElementById('fill-area').style.display = type === 'fill' ? 'flex' : 'none';
+    if (type === 'choice') renderOptions(0);
+  };
+  
+  function renderOptions(correctIdx) {
+    var list = document.getElementById('options-list');
+    var html = '';
+    tempOptions.forEach(function(opt, idx) {
+      html += '<div style="display:flex;gap:0.5rem;align-items:center;">' +
+        '<input type="radio" name="correct-opt" value="' + idx + '"' + (idx===correctIdx?' checked':'') + '>' +
+        '<span style="color:#fff;flex-shrink:0;width:1.5rem;">' + String.fromCharCode(65+idx) + '.</span>' +
+        '<input type="text" class="opt-input" data-idx="' + idx + '" value="' + escapeHtml(opt) + '" style="flex:1;" oninput="updateOption(' + idx + ',this.value)">' +
+        '<button class="btn btn-red" style="padding:0.25rem 0.5rem;font-size:0.75rem;flex-shrink:0;" onclick="removeOption(' + idx + ')"' + (tempOptions.length<=2?' disabled':'') + '>删除</button>' +
+      '</div>';
+    });
+    list.innerHTML = html;
+    var btn = document.getElementById('btn-add-opt');
+    if (btn) btn.disabled = tempOptions.length >= 10;
+  }
+  
+  window.updateOption = function(idx, val) {
+    tempOptions[idx] = val;
+  };
+  
+  window.addOption = function() {
+    if (tempOptions.length >= 10) return;
+    tempOptions.push('');
+    var checked = 0;
+    var radios = document.getElementsByName('correct-opt');
+    for (var i = 0; i < radios.length; i++) {
+      if (radios[i].checked) checked = parseInt(radios[i].value);
+    }
+    renderOptions(checked);
+  };
+  
+  window.removeOption = function(idx) {
+    if (tempOptions.length <= 2) return;
+    tempOptions.splice(idx, 1);
+    var checked = 0;
+    var radios = document.getElementsByName('correct-opt');
+    for (var i = 0; i < radios.length; i++) {
+      if (radios[i].checked) {
+        checked = parseInt(radios[i].value);
+        if (checked >= idx && checked > 0) checked--;
+      }
+    }
+    renderOptions(checked);
+  };
+  
+  window.saveQuestion = function() {
+    var type = document.getElementById('q-type').value;
+    var question = document.getElementById('q-text').value;
+    if (!question.trim()) { alert('请填写完整'); return; }
+    
+    var data = { type: type, question: question.trim() };
+    
+    if (type === 'choice') {
+      for (var i = 0; i < tempOptions.length; i++) {
+        if (!tempOptions[i].trim()) { alert('请填写完整'); return; }
+      }
+      var radios = document.getElementsByName('correct-opt');
+      var correct = 0;
+      for (var r = 0; r < radios.length; r++) {
+        if (radios[r].checked) correct = parseInt(radios[r].value);
+      }
+      data.options = tempOptions.map(function(o) { return o; });
+      data.correctOption = correct;
+    } else {
+      var answer = document.getElementById('q-answer').value;
+      if (!answer.trim()) { alert('请填写完整'); return; }
+      data.answer = answer.trim();
+    }
+    
+    var quiz = quizzes.find(function(q) { return q.id === currentQuizId; });
+    var draft = drafts[currentQuizId];
+    var questions = (draft && draft.questions) 
+      ? JSON.parse(JSON.stringify(draft.questions)) 
+      : JSON.parse(JSON.stringify(quiz.questions));
+    var remark = (draft && draft.remark !== undefined) ? draft.remark : (quiz.closingRemark || '');
+    var password = (draft && draft.password !== undefined) ? draft.password : (quiz.password || '');
+    var hasPassword = (draft && draft.hasPassword !== undefined) ? draft.hasPassword : !!quiz.password;
+    
+    if (editingQuestionId) {
+      var idx = questions.findIndex(function(x) { return x.id === editingQuestionId; });
+      if (idx !== -1) {
+        data.id = editingQuestionId;
+        questions[idx] = data;
+      }
+    } else {
+      data.id = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+      questions.push(data);
+    }
+    
+    updateDraft(currentQuizId, questions, remark, password, hasPassword);
+    closeModal();
+    renderEdit();
+  };
+  
+  window.editQuestion = function(qid) {
+    openQuestionModal(qid);
+  };
+  
+  window.deleteQuestion = function(qid) {
+    var quiz = quizzes.find(function(q) { return q.id === currentQuizId; });
+    var draft = drafts[currentQuizId];
+    var questions = (draft && draft.questions) 
+      ? JSON.parse(JSON.stringify(draft.questions)) 
+      : JSON.parse(JSON.stringify(quiz.questions));
+    var remark = (draft && draft.remark !== undefined) ? draft.remark : (quiz.closingRemark || '');
+    var password = (draft && draft.password !== undefined) ? draft.password : (quiz.password || '');
+    var hasPassword = (draft && draft.hasPassword !== undefined) ? draft.hasPassword : !!quiz.password;
+    questions = questions.filter(function(q) { return q.id !== qid; });
+    updateDraft(currentQuizId, questions, remark, password, hasPassword);
+    renderEdit();
+  };
+  
+  // ==================== QUIZ PAGE ====================
+  function initSession(quiz) {
+    var ids = quiz.questions.map(function(q) { return q.id; });
+    for (var i = ids.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = ids[i]; ids[i] = ids[j]; ids[j] = tmp;
+    }
+    
+    quiz.session = {
+      questionIds: ids,
+      currentIndex: 0,
+      answers: {}
+    };
+    saveData();
+    renderCurrentQuestion(quiz);
+  }
+  
+  function renderCurrentQuestion(quiz) {
+    var session = quiz.session;
+    if (!session || session.currentIndex >= session.questionIds.length) {
+      // 答题完成，跳转到独立结算页
+      showPage('page-result');
+      renderResultPage(quiz);
+      return;
+    }
+    
+    var qid = session.questionIds[session.currentIndex];
+    var question = quiz.questions.find(function(q) { return q.id === qid; });
+    if (!question) {
+      session.currentIndex++;
+      saveData();
+      renderCurrentQuestion(quiz);
+      return;
+    }
+    
+    var answered = session.answers[qid];
+    var total = session.questionIds.length;
+    var current = session.currentIndex + 1;
+    document.getElementById('quiz-progress').textContent = current + '/' + total;
+    
+    var borderColor = answered ? (answered.isCorrect ? 'var(--green)' : 'var(--red)') : '#333333';
+    var textColor = answered ? (answered.isCorrect ? 'var(--green)' : 'var(--red)') : '#ffffff';
+    
+    var html = '<div class="quiz-card" style="border-color:' + borderColor + ';color:' + textColor + ';">';
+    html += '<div style="font-size:1.5rem;margin-bottom:1.5rem;word-break:break-all;">' + escapeHtml(question.question) + '</div>';
+    
+    if (question.type === 'choice') {
+      html += '<div style="display:flex;flex-direction:column;gap:0.75rem;">';
+      question.options.forEach(function(opt, idx) {
+        var btnClass = 'btn btn-cyan option-btn';
+        var style = '';
+        var disabled = '';
+        if (answered) {
+          disabled = 'disabled';
+          if (idx === question.correctOption) {
+            btnClass = 'btn option-btn';
+            style = 'border-color:var(--green);color:var(--green);box-shadow:0 0 5px var(--green),0 0 10px var(--green),0 0 20px var(--green);text-shadow:0 0 5px var(--green),0 0 10px var(--green);';
+          } else if (answered.selected === idx && !answered.isCorrect) {
+            btnClass = 'btn option-btn';
+            style = 'border-color:var(--red);color:var(--red);box-shadow:0 0 5px var(--red),0 0 10px var(--red),0 0 20px var(--red);text-shadow:0 0 5px var(--red),0 0 10px var(--red);';
+          } else {
+            style = 'opacity:0.35;';
+          }
+        }
+        html += '<button class="' + btnClass + '" style="' + style + '" onclick="answerChoice(\'' + qid + '\',' + idx + ')" ' + disabled + '>' + String.fromCharCode(65+idx) + '. ' + escapeHtml(opt) + '</button>';
+      });
+      html += '</div>';
+    } else {
+      if (answered) {
+        if (!answered.isCorrect) {
+          html += '<div style="color:var(--red);margin-bottom:1rem;font-size:1.1rem;">正确答案：' + escapeHtml(question.answer) + '</div>';
+        }
+        html += '<input type="text" value="' + escapeHtml(answered.answer) + '" disabled style="width:100%;opacity:0.6;">';
+      } else {
+        html += '<input type="text" id="fill-input" placeholder="请输入答案，按回车提交" style="width:100%;" onkeydown="if(event.key===\'Enter\')answerFill(\'' + qid + '\',this.value)">';
+      }
+    }
+    
+    html += '</div>';
+    document.getElementById('quiz-area').innerHTML = html;
+    
+    // 关键修复：只有不是最后一题时才显示"下一题"按钮
+    if (answered && session.currentIndex < session.questionIds.length - 1) {
+      document.getElementById('quiz-next').style.display = 'block';
+    } else {
+      document.getElementById('quiz-next').style.display = 'none';
+    }
+  }
+  
+  // ==================== RESULT PAGE (NEW) ====================
+  function renderResultPage(quiz) {
+    var session = quiz.session;
+    var total = session.questionIds.length;
+    var correct = 0;
+    session.questionIds.forEach(function(qid) {
+      var ans = session.answers[qid];
+      if (ans && ans.isCorrect) correct++;
+    });
+    var score = total > 0 ? Math.round(correct / total * 100) : 0;
+    var remark = quiz.closingRemark || '';
+    
+    document.getElementById('result-score').textContent = score + '分';
+    
+    var remarkBox = document.getElementById('result-remark-box');
+    var remarkEl = document.getElementById('result-remark');
+    if (remark) {
+      remarkEl.textContent = remark;
+      remarkBox.style.display = 'block';
+    } else {
+      remarkBox.style.display = 'none';
+    }
+  }
+  
+  window.restartQuiz = function() {
+    var quiz = quizzes.find(function(q) { return q.id === currentQuizId; });
+    if (!quiz) return;
+    document.getElementById('quiz-name').textContent = quiz.name;
+    initSession(quiz);
+    showPage('page-quiz');
+  };
+  
+  // 关键修复：回答选择题后检查是否是最后一题
+  window.answerChoice = function(qid, selected) {
+    var quiz = quizzes.find(function(q) { return q.id === currentQuizId; });
+    var question = quiz.questions.find(function(q) { return q.id === qid; });
+    var isCorrect = selected === question.correctOption;
+    quiz.session.answers[qid] = { selected: selected, isCorrect: isCorrect };
+    
+    if (!isCorrect) {
+      if (quiz.wrongIds.indexOf(qid) === -1) quiz.wrongIds.push(qid);
+    } else {
+      quiz.wrongIds = quiz.wrongIds.filter(function(id) { return id !== qid; });
+    }
+    
+    saveData();
+    
+    // 检查是否是最后一题
+    if (quiz.session.currentIndex === quiz.session.questionIds.length - 1) {
+      // 是最后一题，延迟1秒后自动跳转到结算页面
+      setTimeout(function() {
+        showPage('page-result');
+        renderResultPage(quiz);
+      }, 1000);
+    } else {
+      // 不是最后一题，正常渲染
+      renderCurrentQuestion(quiz);
+    }
+  };
+  
+  // 关键修复：回答填空题后检查是否是最后一题
+  window.answerFill = function(qid, answer) {
+    var quiz = quizzes.find(function(q) { return q.id === currentQuizId; });
+    var question = quiz.questions.find(function(q) { return q.id === qid; });
+    var isCorrect = answer.trim() === question.answer.trim();
+    quiz.session.answers[qid] = { answer: answer, isCorrect: isCorrect };
+    
+    if (!isCorrect) {
+      if (quiz.wrongIds.indexOf(qid) === -1) quiz.wrongIds.push(qid);
+    } else {
+      quiz.wrongIds = quiz.wrongIds.filter(function(id) { return id !== qid; });
+    }
+    
+    saveData();
+    
+    // 检查是否是最后一题
+    if (quiz.session.currentIndex === quiz.session.questionIds.length - 1) {
+      // 是最后一题，延迟1秒后自动跳转到结算页面
+      setTimeout(function() {
+        showPage('page-result');
+        renderResultPage(quiz);
+      }, 1000);
+    } else {
+      // 不是最后一题，正常渲染
+      renderCurrentQuestion(quiz);
+    }
+  };
+  
+  window.nextQuestion = function() {
+    var quiz = quizzes.find(function(q) { return q.id === currentQuizId; });
+    if (quiz.session) {
+      quiz.session.currentIndex++;
+      saveData();
+      renderCurrentQuestion(quiz);
+    }
+  };
+  
+  // ==================== WRONG BOOK ====================
+  function renderWrongBook() {
+    var quiz = quizzes.find(function(q) { return q.id === currentQuizId; });
+    if (!quiz || quiz.wrongIds.length === 0) {
+      document.getElementById('wrong-area').innerHTML = '<div style="text-align:center;color:#888;padding:3rem 1rem;font-size:1.1rem;">错题本为空</div>';
+      document.getElementById('wrong-next').style.display = 'none';
+      return;
+    }
+    
+    if (!wrongSession || wrongSession.quizId !== currentQuizId) {
+      wrongSession = {
+        quizId: currentQuizId,
+        questionIds: quiz.wrongIds.slice(),
+        currentIndex: 0,
+        answers: {}
+      };
+    }
+    
+    if (wrongSession.currentIndex >= wrongSession.questionIds.length) {
+      document.getElementById('wrong-area').innerHTML = '<div style="text-align:center;padding:3rem 1rem;"><h3 style="color:var(--green);text-shadow:0 0 5px var(--green),0 0 10px var(--green);font-size:1.8rem;">错题本复习完成！</h3></div>';
+      document.getElementById('wrong-next').style.display = 'none';
+      return;
+    }
+    
+    var qid = wrongSession.questionIds[wrongSession.currentIndex];
+    var question = quiz.questions.find(function(q) { return q.id === qid; });
+    if (!question) {
+      wrongSession.currentIndex++;
+      renderWrongBook();
+      return;
+    }
+    
+    var answered = wrongSession.answers[qid];
+    var total = wrongSession.questionIds.length;
+    var current = wrongSession.currentIndex + 1;
+    
+    var borderColor = answered ? (answered.isCorrect ? 'var(--green)' : 'var(--red)') : '#333333';
+    var textColor = answered ? (answered.isCorrect ? 'var(--green)' : 'var(--red)') : '#ffffff';
+    
+    var html = '<div class="quiz-card" style="border-color:' + borderColor + ';color:' + textColor + ';">';
+    html += '<div style="font-size:1.2rem;color:#888;margin-bottom:0.5rem;">' + current + '/' + total + '</div>';
+    html += '<div style="font-size:1.5rem;margin-bottom:1.5rem;word-break:break-all;">' + escapeHtml(question.question) + '</div>';
+    
+    if (question.type === 'choice') {
+      html += '<div style="display:flex;flex-direction:column;gap:0.75rem;">';
+      question.options.forEach(function(opt, idx) {
+        var btnClass = 'btn btn-cyan option-btn';
+        var style = '';
+        var disabled = '';
+        if (answered) {
+          disabled = 'disabled';
+          if (idx === question.correctOption) {
+            btnClass = 'btn option-btn';
+            style = 'border-color:var(--green);color:var(--green);box-shadow:0 0 5px var(--green),0 0 10px var(--green),0 0 20px var(--green);text-shadow:0 0 5px var(--green),0 0 10px var(--green);';
+          } else if (answered.selected === idx && !answered.isCorrect) {
+            btnClass = 'btn option-btn';
+            style = 'border-color:var(--red);color:var(--red);box-shadow:0 0 5px var(--red),0 0 10px var(--red),0 0 20px var(--red);text-shadow:0 0 5px var(--red),0 0 10px var(--red);';
+          } else {
+            style = 'opacity:0.35;';
+          }
+        }
+        html += '<button class="' + btnClass + '" style="' + style + '" onclick="answerWrongChoice(\'' + qid + '\',' + idx + ')" ' + disabled + '>' + String.fromCharCode(65+idx) + '. ' + escapeHtml(opt) + '</button>';
+      });
+      html += '</div>';
+    } else {
+      if (answered) {
+        if (!answered.isCorrect) {
+          html += '<div style="color:var(--red);margin-bottom:1rem;font-size:1.1rem;">正确答案：' + escapeHtml(question.answer) + '</div>';
+        }
+        html += '<input type="text" value="' + escapeHtml(answered.answer) + '" disabled style="width:100%;opacity:0.6;">';
+      } else {
+        html += '<input type="text" id="wrong-fill-input" placeholder="请输入答案，按回车提交" style="width:100%;" onkeydown="if(event.key===\'Enter\')answerWrongFill(\'' + qid + '\',this.value)">';
+      }
+    }
+    
+    html += '</div>';
+    document.getElementById('wrong-area').innerHTML = html;
+    
+    if (answered && wrongSession.currentIndex < wrongSession.questionIds.length - 1) {
+      document.getElementById('wrong-next').style.display = 'block';
+    } else {
+      document.getElementById('wrong-next').style.display = 'none';
+    }
+  }
+  
+  window.answerWrongChoice = function(qid, selected) {
+    var quiz = quizzes.find(function(q) { return q.id === currentQuizId; });
+    var question = quiz.questions.find(function(q) { return q.id === qid; });
+    var isCorrect = selected === question.correctOption;
+    wrongSession.answers[qid] = { selected: selected, isCorrect: isCorrect };
+    if (isCorrect) {
+      quiz.wrongIds = quiz.wrongIds.filter(function(id) { return id !== qid; });
+      wrongSession.questionIds = wrongSession.questionIds.filter(function(id) { return id !== qid; });
+    } else {
+      if (quiz.wrongIds.indexOf(qid) === -1) quiz.wrongIds.push(qid);
+    }
+    saveData();
+    renderWrongBook();
+  };
+  
+  window.answerWrongFill = function(qid, answer) {
+    var quiz = quizzes.find(function(q) { return q.id === currentQuizId; });
+    var question = quiz.questions.find(function(q) { return q.id === qid; });
+    var isCorrect = answer.trim() === question.answer.trim();
+    wrongSession.answers[qid] = { answer: answer, isCorrect: isCorrect };
+    if (isCorrect) {
+      quiz.wrongIds = quiz.wrongIds.filter(function(id) { return id !== qid; });
+      wrongSession.questionIds = wrongSession.questionIds.filter(function(id) { return id !== qid; });
+    } else {
+      if (quiz.wrongIds.indexOf(qid) === -1) quiz.wrongIds.push(qid);
+    }
+    saveData();
+    renderWrongBook();
+  };
+  
+  window.nextWrong = function() {
+    if (!wrongSession) return;
+    wrongSession.currentIndex++;
+    renderWrongBook();
+  };
+  
+  // ==================== EXPORT / IMPORT ====================
+  window.exportAll = function() {
+    var data = JSON.stringify(quizzes, null, 2);
+    var blob = new Blob([data], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'deathsore_quizzes.json';
+    document.body.appendChild(a);
+    a.click();
+    
+    setTimeout(function() {
+      openModal('<div style="max-height:70vh;display:flex;flex-direction:column;">' +
+        '<p style="color:var(--cyan);margin-bottom:1rem;text-align:center;font-size:1.1rem;">请复制文本并手动保存为.json文件</p>' +
+        '<pre style="flex:1;overflow-y:auto;background:#000;border:1px solid #333;padding:1rem;white-space:pre-wrap;word-break:break-all;font-size:0.75rem;line-height:1.4;">' + escapeHtml(data) + '</pre>' +
+        '<button class="btn btn-cyan" onclick="closeModal()" style="margin-top:1rem;">关闭</button>' +
+      '</div>');
+      URL.revokeObjectURL(url);
+      if (a.parentNode) a.parentNode.removeChild(a);
+    }, 2000);
+  };
+  
+  window.importQuiz = function() {
+    importHandled = false;
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json,.json';
+    input.style.display = 'none';
+    document.body.appendChild(input);
+    
+    input.onchange = function(e) {
+      importHandled = true;
+      var file = e.target.files[0];
+      if (file) {
+        var reader = new FileReader();
+        reader.onload = function(ev) {
+          try {
+            var data = JSON.parse(ev.target.result);
+            processImport(data);
+          } catch(err) {
+            alert('文件解析失败：' + err.message);
+          }
+        };
+        reader.readAsText(file);
+      }
+      if (input.parentNode) input.parentNode.removeChild(input);
+    };
+    
+    input.click();
+    
+    setTimeout(function() {
+      if (!importHandled) {
+        if (input.parentNode) input.parentNode.removeChild(input);
+        fallbackImport();
+      }
+    }, 2000);
+  };
+  
+  function fallbackImport() {
+    openModal('<div style="display:flex;flex-direction:column;gap:1rem;">' +
+      '<h3 style="color:var(--cyan);text-align:center;font-size:1.3rem;">导入题库</h3>' +
+      '<p style="color:#888;font-size:0.9rem;">请粘贴JSON内容：</p>' +
+      '<textarea id="import-text" style="width:100%;height:200px;background:#000;border:1px solid #333;color:#fff;padding:0.75rem;font-family:inherit;" placeholder="在此粘贴JSON..."></textarea>' +
+      '<div style="display:flex;gap:1rem;justify-content:center;margin-top:0.5rem;">' +
+        '<button class="btn btn-cyan" onclick="confirmTextImport()">确认导入</button>' +
+        '<button class="btn btn-white" style="font-size:0.9rem;padding:0.6rem 1.2rem;" onclick="closeModal()">取消</button>' +
+      '</div>' +
+    '</div>');
+  }
+  
+  window.confirmTextImport = function() {
+    var text = document.getElementById('import-text').value.trim();
+    if (!text) return;
+    try {
+      var data = JSON.parse(text);
+      processImport(data);
+      closeModal();
+    } catch(err) {
+      alert('JSON解析失败：' + err.message);
+    }
+  };
+  
+  function processImport(data) {
+    if (!Array.isArray(data)) {
+      alert('格式错误：应为题库数组');
+      return;
+    }
+    var added = 0;
+    data.forEach(function(item) {
+      if (!item.name || !Array.isArray(item.questions)) return;
+      var name = item.name;
+      var existing = quizzes.find(function(q) { return q.name === name; });
+      if (existing) {
+        var suffix = 1;
+        while (quizzes.find(function(q) { return q.name === name + '(' + suffix + ')'; })) { suffix++; }
+        name = name + '(' + suffix + ')';
+      }
+      var newQuiz = {
+        id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5) + '_' + added,
+        name: name,
+        questions: item.questions.map(function(q) {
+          var nq = {};
+          for (var k in q) nq[k] = q[k];
+          if (!nq.id) nq.id = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+          return nq;
+        }),
+        wrongIds: item.wrongIds || [],
+        session: null,
+        closingRemark: item.closingRemark || '',
+        password: item.password || ''
+      };
+      quizzes.push(newQuiz);
+      added++;
+    });
+    saveData();
+    renderHome();
+    alert('成功导入 ' + added + ' 个题库');
+  }
+  
+  // ==================== INIT ====================
+  loadData();
+  renderHome();
+})();
+</script>
+</body>
+</html>
